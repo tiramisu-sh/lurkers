@@ -1,0 +1,60 @@
+# crawlers
+
+Convenient API + CLI to fetch web content for agents.
+
+> **Status: early PoC.** APIs will change.
+
+## Sources
+
+- **HTML** pages (any URL) — extracted to markdown via [trafilatura](https://trafilatura.readthedocs.io/)
+- **YouTube** videos — title + channel + transcript
+- **Twitter/X** posts — via [fxtwitter](https://fxtwitter.com/) (no auth required)
+- **RSS/Atom feeds** — list of entries, each fetched through the unified dispatch
+
+## Install
+
+```bash
+pip install crawlers
+```
+
+## Python
+
+```python
+import crawlers
+
+# unified entry point — auto-detects source type
+doc = crawlers.fetch("https://news.ycombinator.com/item?id=1")
+doc = crawlers.fetch("https://www.youtube.com/watch?v=dQw4w9WgXcQ")
+doc = crawlers.fetch("https://x.com/elonmusk/status/12345")
+
+# RSS / Atom: returns list[Document]
+docs = crawlers.feed("https://news.ycombinator.com/rss", limit=10)
+
+# async siblings
+import asyncio
+docs = asyncio.run(crawlers.afeed("https://example.com/rss.xml"))
+```
+
+Every fetch returns a `Document`:
+
+```python
+class Document(BaseModel):
+    source: str               # canonical URL
+    source_type: str          # "html" | "youtube" | "twitter"
+    title: str | None
+    content: str              # markdown / plain text
+    fetched_at: datetime
+    metadata: dict[str, Any]  # source-specific (video_id, author_handle, ...)
+```
+
+## CLI
+
+```bash
+crawlers fetch https://example.com/article            # JSON to stdout
+crawlers fetch https://youtu.be/dQw4w9WgXcQ --pretty
+crawlers feed https://news.ycombinator.com/rss -n 5
+```
+
+## License
+
+[Apache-2.0](LICENSE).
