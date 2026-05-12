@@ -1,4 +1,4 @@
-"""crawlers: convenient API + CLI to fetch web content for agents."""
+"""lurkers: convenient API + CLI to fetch web content for agents."""
 
 from .dispatch import afetch, detect_source_type, fetch
 from .rss import afeed, feed

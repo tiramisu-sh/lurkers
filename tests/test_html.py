@@ -5,7 +5,7 @@ from __future__ import annotations
 import httpx
 import respx
 
-import crawlers
+import lurkers
 
 ARTICLE_HTML = """<!DOCTYPE html>
 <html lang="en">
@@ -32,7 +32,7 @@ ARTICLE_HTML = """<!DOCTYPE html>
 def test_html_extraction_via_dispatch():
     with respx.mock(assert_all_called=False) as mock:
         mock.get("https://example.com/cats").mock(return_value=httpx.Response(200, text=ARTICLE_HTML))
-        doc = crawlers.fetch("https://example.com/cats")
+        doc = lurkers.fetch("https://example.com/cats")
 
     assert doc.source == "https://example.com/cats"
     assert doc.source_type == "html"
@@ -44,6 +44,6 @@ def test_html_extraction_via_dispatch():
 def test_html_handles_empty_extraction():
     with respx.mock(assert_all_called=False) as mock:
         mock.get("https://example.com/empty").mock(return_value=httpx.Response(200, text="<html><body></body></html>"))
-        doc = crawlers.fetch("https://example.com/empty")
+        doc = lurkers.fetch("https://example.com/empty")
     assert doc.source_type == "html"
     assert isinstance(doc.content, str)

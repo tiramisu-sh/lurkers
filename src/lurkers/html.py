@@ -10,7 +10,7 @@ import trafilatura
 from .types import Document
 
 DEFAULT_HEADERS = {
-    "User-Agent": "Mozilla/5.0 (compatible; crawlers/0.1; +https://github.com/tiramisu-sh/crawlers)",
+    "User-Agent": "Mozilla/5.0 (compatible; lurkers/0.1; +https://github.com/tiramisu-sh/lurkers)",
     "Accept": "text/html,application/xhtml+xml,application/xml,*/*",
 }
 DEFAULT_TIMEOUT = 30.0

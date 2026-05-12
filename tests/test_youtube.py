@@ -5,8 +5,8 @@ from __future__ import annotations
 import httpx
 import respx
 
-import crawlers
-from crawlers.youtube import extract_video_id
+import lurkers
+from lurkers.youtube import extract_video_id
 
 
 def test_extract_video_id():
@@ -45,7 +45,7 @@ def test_youtube_fetch(monkeypatch):
                 },
             )
         )
-        doc = crawlers.fetch("https://www.youtube.com/watch?v=abc123")
+        doc = lurkers.fetch("https://www.youtube.com/watch?v=abc123")
 
     assert doc.source_type == "youtube"
     assert doc.title == "Cat Video"

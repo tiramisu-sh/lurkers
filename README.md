@@ -1,4 +1,4 @@
-# crawlers
+# lurkers
 
 Convenient API + CLI to fetch web content for agents.
 
@@ -14,25 +14,25 @@ Convenient API + CLI to fetch web content for agents.
 ## Install
 
 ```bash
-pip install crawlers
+pip install lurkers
 ```
 
 ## Python
 
 ```python
-import crawlers
+import lurkers
 
 # unified entry point — auto-detects source type
-doc = crawlers.fetch("https://news.ycombinator.com/item?id=1")
-doc = crawlers.fetch("https://www.youtube.com/watch?v=dQw4w9WgXcQ")
-doc = crawlers.fetch("https://x.com/elonmusk/status/12345")
+doc = lurkers.fetch("https://news.ycombinator.com/item?id=1")
+doc = lurkers.fetch("https://www.youtube.com/watch?v=dQw4w9WgXcQ")
+doc = lurkers.fetch("https://x.com/elonmusk/status/12345")
 
 # RSS / Atom: returns list[Document]
-docs = crawlers.feed("https://news.ycombinator.com/rss", limit=10)
+docs = lurkers.feed("https://news.ycombinator.com/rss", limit=10)
 
 # async siblings
 import asyncio
-docs = asyncio.run(crawlers.afeed("https://example.com/rss.xml"))
+docs = asyncio.run(lurkers.afeed("https://example.com/rss.xml"))
 ```
 
 Every fetch returns a `Document`:
@@ -50,9 +50,9 @@ class Document(BaseModel):
 ## CLI
 
 ```bash
-crawlers fetch https://example.com/article            # JSON to stdout
-crawlers fetch https://youtu.be/dQw4w9WgXcQ --pretty
-crawlers feed https://news.ycombinator.com/rss -n 5
+lurkers fetch https://example.com/article            # JSON to stdout
+lurkers fetch https://youtu.be/dQw4w9WgXcQ --pretty
+lurkers feed https://news.ycombinator.com/rss -n 5
 ```
 
 ## License

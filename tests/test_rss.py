@@ -5,8 +5,8 @@ from __future__ import annotations
 import httpx
 import respx
 
-import crawlers
-from crawlers.rss import parse_feed_urls
+import lurkers
+from lurkers.rss import parse_feed_urls
 
 RSS_XML = """<?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0">
@@ -56,7 +56,7 @@ def test_feed_fetches_each_entry():
         mock.get("https://example.com/a2").mock(
             return_value=httpx.Response(200, text=ARTICLE_TEMPLATE.format(title="Second"))
         )
-        docs = crawlers.feed("https://example.com/rss.xml")
+        docs = lurkers.feed("https://example.com/rss.xml")
 
     assert len(docs) == 2
     assert {d.source for d in docs} == {"https://example.com/a1", "https://example.com/a2"}
@@ -69,6 +69,6 @@ def test_feed_with_limit():
         mock.get("https://example.com/a1").mock(
             return_value=httpx.Response(200, text=ARTICLE_TEMPLATE.format(title="First"))
         )
-        docs = crawlers.feed("https://example.com/rss.xml", limit=1)
+        docs = lurkers.feed("https://example.com/rss.xml", limit=1)
     assert len(docs) == 1
     assert docs[0].source == "https://example.com/a1"

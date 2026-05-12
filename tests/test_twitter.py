@@ -5,8 +5,8 @@ from __future__ import annotations
 import httpx
 import respx
 
-import crawlers
-from crawlers.twitter import parse_tweet_url
+import lurkers
+from lurkers.twitter import parse_tweet_url
 
 
 def test_parse_tweet_url():
@@ -35,7 +35,7 @@ def test_twitter_fetch_via_fxtwitter():
                 },
             )
         )
-        doc = crawlers.fetch("https://x.com/elonmusk/status/12345")
+        doc = lurkers.fetch("https://x.com/elonmusk/status/12345")
 
     assert doc.source_type == "twitter"
     assert "Cats are wonderful" in doc.content

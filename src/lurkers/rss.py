@@ -51,7 +51,7 @@ async def afeed(
         client = httpx.AsyncClient(
             timeout=30.0,
             follow_redirects=True,
-            headers={"User-Agent": "Mozilla/5.0 (compatible; crawlers/0.1)"},
+            headers={"User-Agent": "Mozilla/5.0 (compatible; lurkers/0.1)"},
         )
     try:
         resp = await client.get(feed_url)

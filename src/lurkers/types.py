@@ -1,4 +1,4 @@
-"""Core types for crawlers."""
+"""Core types for lurkers."""
 
 from __future__ import annotations
 
