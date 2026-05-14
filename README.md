@@ -1,5 +1,11 @@
 # lurkers
 
+[![PyPI](https://img.shields.io/pypi/v/lurkers.svg)](https://pypi.org/project/lurkers/)
+[![CI](https://github.com/tiramisu-sh/lurkers/actions/workflows/ci.yml/badge.svg)](https://github.com/tiramisu-sh/lurkers/actions/workflows/ci.yml)
+[![License: Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
+[![Python](https://img.shields.io/pypi/pyversions/lurkers.svg)](https://pypi.org/project/lurkers/)
+[![Downloads](https://img.shields.io/pypi/dm/lurkers.svg)](https://pypi.org/project/lurkers/)
+
 Convenient API + CLI to fetch web content for agents.
 
 > **Status: early PoC.** APIs will change.
