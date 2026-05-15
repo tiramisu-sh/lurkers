@@ -36,8 +36,9 @@ doc = lurkers.fetch("https://x.com/elonmusk/status/12345")
 # RSS / Atom: returns list[Document]
 docs = lurkers.feed("https://news.ycombinator.com/rss", limit=10)
 
-# async siblings
+# async siblings — afetch / afeed mirror fetch / feed
 import asyncio
+doc = asyncio.run(lurkers.afetch("https://news.ycombinator.com/item?id=1"))
 docs = asyncio.run(lurkers.afeed("https://example.com/rss.xml"))
 ```
 
