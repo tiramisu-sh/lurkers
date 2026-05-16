@@ -10,7 +10,7 @@ time, so edit it here — not in the website repo.
 In a checkout of the website repo, point its dev server at this folder:
 
 ```bash
-LURKERS_DOCS_PATH=/abs/path/to/lurkers/docs pnpm dev
+LURKERS_DOCS_PATH=/abs/path/to/lurkers/docs bun run dev
 ```
 
 That renders this file — uncommitted edits included — with the site's styling.
