@@ -1,0 +1,66 @@
+---
+title: lurkers
+description: Convenient API + CLI for AI agents to fetch web content — HTML, YouTube transcripts, Twitter/X, RSS — through one typed Document model.
+---
+
+`lurkers` gives agents a single front door to the web. Throw any URL at `lurkers.fetch(...)` and get back a typed `Document` with the content extracted, metadata parsed, and source-specific quirks handled.
+
+## Install
+
+```bash
+uv add lurkers
+```
+
+## Quick start (Python)
+
+```python
+import lurkers
+
+doc = lurkers.fetch("https://example.com/article")
+doc = lurkers.fetch("https://www.youtube.com/watch?v=dQw4w9WgXcQ")
+doc = lurkers.fetch("https://x.com/user/status/123")
+
+# check how a URL routes, without fetching it
+lurkers.detect_source_type("https://youtu.be/dQw4w9WgXcQ")  # → "youtube"
+
+# RSS / Atom: fetches each entry; failed ones are skipped (skip_errors=False to raise)
+docs = lurkers.feed("https://news.ycombinator.com/rss", limit=10)
+
+# async siblings — afetch / afeed mirror fetch / feed
+import asyncio
+doc = asyncio.run(lurkers.afetch("https://example.com/article"))
+docs = asyncio.run(lurkers.afeed("https://example.com/rss.xml"))
+```
+
+Every fetch returns a `Document`:
+
+```python
+class Document(BaseModel):
+    source: str
+    source_type: str                  # "html" | "youtube" | "twitter"
+    title: str | None
+    content: str                      # markdown / plain text
+    fetched_at: datetime
+    metadata: dict[str, Any]          # source-specific (video_id, author_handle, ...)
+```
+
+## Quick start (CLI)
+
+```bash
+lurkers fetch <url>                   # JSON Document to stdout
+lurkers fetch <url> --pretty          # indented JSON
+lurkers feed <rss-url> --limit 10     # JSON array of Documents
+```
+
+## Sources
+
+| Source | Extractor | Auth |
+|---|---|---|
+| HTML | [trafilatura](https://trafilatura.readthedocs.io/) → markdown + metadata | none |
+| YouTube | oEmbed (title / channel) + youtube-transcript-api | none |
+| Twitter / X | [fxtwitter](https://fxtwitter.com/) public API | none |
+| RSS / Atom | feed entries fed back through the unified `fetch()` | none |
+
+## Source
+
+[github.com/tiramisu-sh/lurkers](https://github.com/tiramisu-sh/lurkers) · Apache-2.0
