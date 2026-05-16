@@ -33,11 +33,15 @@ doc = lurkers.fetch("https://news.ycombinator.com/item?id=1")
 doc = lurkers.fetch("https://www.youtube.com/watch?v=dQw4w9WgXcQ")
 doc = lurkers.fetch("https://x.com/elonmusk/status/12345")
 
-# RSS / Atom: returns list[Document]
+# check how a URL routes, without fetching it
+lurkers.detect_source_type("https://youtu.be/dQw4w9WgXcQ")  # → "youtube"
+
+# RSS / Atom: returns list[Document]; failed entries skipped (skip_errors=False to raise)
 docs = lurkers.feed("https://news.ycombinator.com/rss", limit=10)
 
-# async siblings
+# async siblings — afetch / afeed mirror fetch / feed
 import asyncio
+doc = asyncio.run(lurkers.afetch("https://news.ycombinator.com/item?id=1"))
 docs = asyncio.run(lurkers.afeed("https://example.com/rss.xml"))
 ```
 
