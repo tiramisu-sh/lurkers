@@ -8,6 +8,7 @@ from urllib.parse import parse_qs, urlparse
 
 import httpx
 
+from ._http import build_client
 from .types import Document
 
 _OEMBED_URL = "https://www.youtube.com/oembed"
@@ -36,7 +37,7 @@ async def afetch_youtube(url: str, *, client: httpx.AsyncClient | None = None) -
 
     own_client = client is None
     if own_client:
-        client = httpx.AsyncClient(timeout=15.0, follow_redirects=True)
+        client = build_client()
     try:
         resp = await client.get(
             _OEMBED_URL,

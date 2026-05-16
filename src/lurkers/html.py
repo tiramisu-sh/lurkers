@@ -7,23 +7,14 @@ import asyncio
 import httpx
 import trafilatura
 
+from ._http import build_client
 from .types import Document
-
-DEFAULT_HEADERS = {
-    "User-Agent": "Mozilla/5.0 (compatible; lurkers/0.1; +https://github.com/tiramisu-sh/lurkers)",
-    "Accept": "text/html,application/xhtml+xml,application/xml,*/*",
-}
-DEFAULT_TIMEOUT = 30.0
 
 
 async def afetch_html(url: str, *, client: httpx.AsyncClient | None = None) -> Document:
     own_client = client is None
     if own_client:
-        client = httpx.AsyncClient(
-            headers=DEFAULT_HEADERS,
-            timeout=DEFAULT_TIMEOUT,
-            follow_redirects=True,
-        )
+        client = build_client()
     try:
         resp = await client.get(url)
         resp.raise_for_status()
