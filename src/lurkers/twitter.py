@@ -11,7 +11,9 @@ from ._http import build_client
 from .types import Document
 
 _TWEET_RE = re.compile(
-    r"^https?://(?:www\.|mobile\.)?(?:twitter|x)\.com/([^/]+)/status/(\d+)",
+    r"^https?://(?:www\.|mobile\.)?"
+    r"(?:twitter|x|fxtwitter|fixupx|vxtwitter|fixvx|twittpr)\.com"
+    r"/([^/]+)/status/(\d+)",
 )
 _FXTWITTER_API = "https://api.fxtwitter.com"
 

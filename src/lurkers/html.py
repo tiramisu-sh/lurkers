@@ -18,10 +18,18 @@ async def afetch_html(url: str, *, client: httpx.AsyncClient | None = None) -> D
     try:
         resp = await client.get(url)
         resp.raise_for_status()
+        content_type = resp.headers.get("content-type", "").lower()
+        raw = resp.content
         html = resp.text
     finally:
         if own_client:
             await client.aclose()
+
+    # A URL that looked like a web page can still serve a PDF — hand it off.
+    if "application/pdf" in content_type or raw[:5] == b"%PDF-":
+        from .pdf import afetch_pdf
+
+        return await afetch_pdf(url, _content=raw)
 
     content = trafilatura.extract(html, output_format="markdown", with_metadata=False) or ""
     meta = trafilatura.extract_metadata(html)
