@@ -19,7 +19,7 @@ app = typer.Typer(
 
 @app.command("fetch")
 def fetch_cmd(
-    url: str = typer.Argument(..., help="URL to fetch (HTML, YouTube, or Twitter; auto-detected)."),
+    url: str = typer.Argument(..., help="URL to fetch (HTML, PDF, YouTube, or Twitter; auto-detected)."),
     pretty: bool = typer.Option(False, "--pretty", help="Indent JSON output."),
 ) -> None:
     """Fetch a single URL; print the Document as JSON to stdout."""

@@ -37,7 +37,7 @@ Every fetch returns a `Document`:
 ```python
 class Document(BaseModel):
     source: str
-    source_type: str                  # "html" | "youtube" | "twitter"
+    source_type: str                  # "html" | "pdf" | "youtube" | "twitter"
     title: str | None
     content: str                      # markdown / plain text
     fetched_at: datetime
@@ -57,8 +57,9 @@ lurkers feed <rss-url> --limit 10     # JSON array of Documents
 | Source | Extractor | Auth |
 |---|---|---|
 | HTML | [trafilatura](https://trafilatura.readthedocs.io/) → markdown + metadata | none |
+| PDF | [pypdf](https://pypdf.readthedocs.io/) text extraction (by URL or content-type) | none |
 | YouTube | oEmbed (title / channel) + youtube-transcript-api | none |
-| Twitter / X | [fxtwitter](https://fxtwitter.com/) public API | none |
+| Twitter / X | [fxtwitter](https://fxtwitter.com/) public API (incl. fxtwitter/fixupx mirrors) | none |
 | RSS / Atom | feed entries fed back through the unified `fetch()` | none |
 
 ## Source

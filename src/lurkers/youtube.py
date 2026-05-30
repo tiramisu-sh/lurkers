@@ -24,7 +24,7 @@ def extract_video_id(url: str) -> str | None:
     if host == "youtube.com":
         if parsed.path == "/watch":
             return parse_qs(parsed.query).get("v", [None])[0]
-        m = re.match(r"^/(?:shorts|embed|v)/([^/?]+)", parsed.path)
+        m = re.match(r"^/(?:shorts|embed|v|live)/([^/?]+)", parsed.path)
         if m:
             return m.group(1)
     return None
@@ -75,23 +75,34 @@ async def afetch_youtube(url: str, *, client: httpx.AsyncClient | None = None) -
     )
 
 
+class TranscriptUnavailable(Exception):
+    """Raised when a YouTube video has no retrievable transcript.
+
+    Surfaced as a real failure rather than buried inside Document.content, so
+    callers can distinguish "no transcript" from a genuine summary/transcript.
+    """
+
+
 def _fetch_transcript(video_id: str) -> str:
-    """Sync transcript fetch (intended to run in a thread)."""
+    """Sync transcript fetch (intended to run in a thread). Raises on failure."""
     try:
         from youtube_transcript_api import YouTubeTranscriptApi
-    except ImportError as e:
-        return f"(transcript unavailable: youtube-transcript-api missing: {e})"
+    except ImportError as e:  # pragma: no cover
+        raise TranscriptUnavailable(f"youtube-transcript-api missing: {e}") from e
     try:
         segments = YouTubeTranscriptApi().fetch(video_id, languages=_TRANSCRIPT_LANGS)
     except Exception as e:
-        return f"(transcript unavailable: {type(e).__name__}: {e})"
+        raise TranscriptUnavailable(f"{type(e).__name__}: {e}") from e
     lines: list[str] = []
     for snippet in segments:
         text = getattr(snippet, "text", None) or (snippet.get("text") if isinstance(snippet, dict) else "")
         text = (text or "").strip()
         if text:
             lines.append(text)
-    return "\n".join(lines)
+    transcript = "\n".join(lines)
+    if not transcript.strip():
+        raise TranscriptUnavailable("empty transcript")
+    return transcript
 
 
 def fetch_youtube(url: str) -> Document:

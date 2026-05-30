@@ -17,6 +17,31 @@ def test_parse_tweet_url():
     assert parse_tweet_url("https://example.com/foo") is None
 
 
+def test_parse_tweet_url_mirrors():
+    assert parse_tweet_url("https://fxtwitter.com/elonmusk/status/123") == ("elonmusk", "123")
+    assert parse_tweet_url("https://fixupx.com/jack/status/456") == ("jack", "456")
+    assert parse_tweet_url("https://vxtwitter.com/a/status/789") == ("a", "789")
+    # Host casing must not break parsing (router lowercases the host).
+    assert parse_tweet_url("HTTPS://X.COM/jack/status/456") == ("jack", "456")
+
+
+def test_mirror_fetch_hits_canonical_fxtwitter_api():
+    """A mirror URL must actually call api.fxtwitter.com/<user>/status/<id>."""
+    with respx.mock(assert_all_called=False) as mock:
+        route = mock.get("https://api.fxtwitter.com/elonmusk/status/12345").mock(
+            return_value=httpx.Response(
+                200,
+                json={"tweet": {"text": "hi", "author": {"screen_name": "elonmusk", "name": "Elon"}}},
+            )
+        )
+        doc = lurkers.fetch("https://fixupx.com/elonmusk/status/12345")
+
+    assert route.called
+    assert str(route.calls.last.request.url) == "https://api.fxtwitter.com/elonmusk/status/12345"
+    assert doc.source_type == "twitter"
+    assert doc.source == "https://fixupx.com/elonmusk/status/12345"  # original URL preserved
+
+
 def test_twitter_fetch_via_fxtwitter():
     with respx.mock(assert_all_called=False) as mock:
         mock.get("https://api.fxtwitter.com/elonmusk/status/12345").mock(
