@@ -17,6 +17,12 @@ def test_parse_tweet_url():
     assert parse_tweet_url("https://example.com/foo") is None
 
 
+def test_parse_tweet_url_mirrors():
+    assert parse_tweet_url("https://fxtwitter.com/elonmusk/status/123") == ("elonmusk", "123")
+    assert parse_tweet_url("https://fixupx.com/jack/status/456") == ("jack", "456")
+    assert parse_tweet_url("https://vxtwitter.com/a/status/789") == ("a", "789")
+
+
 def test_twitter_fetch_via_fxtwitter():
     with respx.mock(assert_all_called=False) as mock:
         mock.get("https://api.fxtwitter.com/elonmusk/status/12345").mock(

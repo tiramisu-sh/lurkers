@@ -13,8 +13,9 @@ Convenient API + CLI to fetch web content for agents.
 ## Sources
 
 - **HTML** pages (any URL) — extracted to markdown via [trafilatura](https://trafilatura.readthedocs.io/)
+- **PDFs** — text extracted via [pypdf](https://pypdf.readthedocs.io/) (detected by URL or content-type)
 - **YouTube** videos — title + channel + transcript
-- **Twitter/X** posts — via [fxtwitter](https://fxtwitter.com/) (no auth required)
+- **Twitter/X** posts — via [fxtwitter](https://fxtwitter.com/), including `fxtwitter`/`fixupx` mirror links (no auth required)
 - **RSS/Atom feeds** — list of entries, each fetched through the unified dispatch
 
 ## Install
@@ -50,7 +51,7 @@ Every fetch returns a `Document`:
 ```python
 class Document(BaseModel):
     source: str               # canonical URL
-    source_type: str          # "html" | "youtube" | "twitter"
+    source_type: str          # "html" | "pdf" | "youtube" | "twitter"
     title: str | None
     content: str              # markdown / plain text
     fetched_at: datetime
