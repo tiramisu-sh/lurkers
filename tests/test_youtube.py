@@ -72,3 +72,21 @@ def test_youtube_transcript_unavailable_raises(monkeypatch):
         )
         with pytest.raises(TranscriptUnavailable):
             lurkers.fetch("https://www.youtube.com/watch?v=abc123")
+
+
+def test_youtube_empty_transcript_raises(monkeypatch):
+    """A transcript that fetches OK but is all-blank is also a failure, not content."""
+    import youtube_transcript_api
+
+    monkeypatch.setattr(
+        youtube_transcript_api.YouTubeTranscriptApi,
+        "fetch",
+        lambda self, video_id, languages=None: [_FakeSnippet("   "), _FakeSnippet("")],
+    )
+
+    with respx.mock(assert_all_called=False) as mock:
+        mock.get("https://www.youtube.com/oembed").mock(
+            return_value=httpx.Response(200, json={"title": "T", "author_name": "A"})
+        )
+        with pytest.raises(TranscriptUnavailable):
+            lurkers.fetch("https://www.youtube.com/watch?v=abc123")

@@ -10,10 +10,15 @@ import httpx
 from ._http import build_client
 from .types import Document
 
+# Single source of truth for tweet hosts: the originals plus embed-friendly
+# mirrors people paste instead of them. Both the routing host-set (dispatch)
+# and the parse regex are derived from this, so they can't drift apart.
+_TWEET_HOST_BASES = ("twitter", "x", "fxtwitter", "fixupx", "vxtwitter", "fixvx", "twittpr")
+TWEET_HOSTS = frozenset(f"{base}.com" for base in _TWEET_HOST_BASES) | {"mobile.twitter.com"}
 _TWEET_RE = re.compile(
-    r"^https?://(?:www\.|mobile\.)?"
-    r"(?:twitter|x|fxtwitter|fixupx|vxtwitter|fixvx|twittpr)\.com"
+    r"^https?://(?:www\.|mobile\.)?(?:" + "|".join(_TWEET_HOST_BASES) + r")\.com"
     r"/([^/]+)/status/(\d+)",
+    re.IGNORECASE,
 )
 _FXTWITTER_API = "https://api.fxtwitter.com"
 

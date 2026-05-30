@@ -7,22 +7,19 @@ from urllib.parse import urlparse
 
 import httpx
 
+from .twitter import TWEET_HOSTS
 from .types import Document
 
 _YOUTUBE_HOSTS = {"youtube.com", "youtu.be", "m.youtube.com"}
-_TWITTER_HOSTS = {
-    "twitter.com", "x.com", "mobile.twitter.com",
-    # Embed-friendly mirrors people paste instead of the originals; all are
-    # resolvable through the fxtwitter API the twitter fetcher already uses.
-    "fxtwitter.com", "fixupx.com", "vxtwitter.com", "fixvx.com", "twittpr.com",
-}
 
 
 def _looks_like_pdf(url: str) -> bool:
-    """URL-level PDF hint. Content-type sniffing in the html fetcher catches
-    the rest (e.g. PDFs served from extensionless URLs)."""
+    """Conservative URL-level PDF hint: only obvious PDF URLs. Pages that merely
+    contain '/pdf/' somewhere in the path (e.g. /pdf/viewer/<article>) are left
+    to the html fetcher, whose content-type sniff still catches real PDFs served
+    from extensionless URLs like arxiv.org/pdf/<id>."""
     path = urlparse(url).path.lower()
-    return path.endswith(".pdf") or path == "/pdf" or "/pdf/" in path
+    return path.endswith(".pdf") or path.rstrip("/") == "/pdf"
 
 
 def detect_source_type(url: str) -> str:
@@ -30,7 +27,7 @@ def detect_source_type(url: str) -> str:
     host = urlparse(url).netloc.lower().removeprefix("www.")
     if host in _YOUTUBE_HOSTS:
         return "youtube"
-    if host in _TWITTER_HOSTS:
+    if host in TWEET_HOSTS:
         return "twitter"
     if _looks_like_pdf(url):
         return "pdf"

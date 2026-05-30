@@ -3,6 +3,15 @@
 from .dispatch import afetch, detect_source_type, fetch
 from .rss import afeed, feed
 from .types import Document
+from .youtube import TranscriptUnavailable
 
-__all__ = ["Document", "afeed", "afetch", "detect_source_type", "feed", "fetch"]
+__all__ = [
+    "Document",
+    "TranscriptUnavailable",
+    "afeed",
+    "afetch",
+    "detect_source_type",
+    "feed",
+    "fetch",
+]
 __version__ = "0.2.0"

@@ -70,3 +70,28 @@ def test_pdf_no_text_raises():
         )
         with pytest.raises(ValueError):
             lurkers.fetch("https://example.com/scan.pdf")
+
+
+def test_html_route_delegates_pdf_with_charset_content_type():
+    """Real responses often send 'application/pdf; charset=...'; the guard must still match."""
+    pdf = _tiny_pdf("Charset suffix should still route to PDF.")
+    with respx.mock(assert_all_called=False) as mock:
+        mock.get("https://example.com/doc").mock(
+            return_value=httpx.Response(200, content=pdf, headers={"content-type": "Application/PDF; charset=binary"})
+        )
+        doc = lurkers.fetch("https://example.com/doc")
+
+    assert doc.source_type == "pdf"
+    assert "Charset suffix" in doc.content
+
+
+def test_pdf_size_cap(monkeypatch):
+    """Oversized bodies are refused before parsing (DoS guard)."""
+    monkeypatch.setattr("lurkers.pdf.MAX_PDF_BYTES", 16)  # tiny cap; _tiny_pdf is larger
+    pdf = _tiny_pdf("This body exceeds the tiny cap and must be rejected.")
+    with respx.mock(assert_all_called=False) as mock:
+        mock.get("https://example.com/big.pdf").mock(
+            return_value=httpx.Response(200, content=pdf, headers={"content-type": "application/pdf"})
+        )
+        with pytest.raises(ValueError):
+            lurkers.fetch("https://example.com/big.pdf")

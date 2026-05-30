@@ -15,6 +15,11 @@ import httpx
 from ._http import build_client
 from .types import Document
 
+# Bounds so a crafted or accidental giant/"bomb" PDF can't exhaust memory/CPU
+# when fetching untrusted URLs. Generous enough for real papers and books.
+MAX_PDF_BYTES = 50 * 1024 * 1024  # 50 MiB
+MAX_PDF_PAGES = 3000
+
 
 async def afetch_pdf(
     url: str,
@@ -27,16 +32,16 @@ async def afetch_pdf(
         if own_client:
             client = build_client()
         try:
-            resp = await client.get(url)
-            resp.raise_for_status()
-            data = resp.content
+            data = await _download_capped(client, url)
         finally:
             if own_client:
                 await client.aclose()
     else:
+        if len(_content) > MAX_PDF_BYTES:
+            raise ValueError(f"PDF too large: {len(_content)} bytes > {MAX_PDF_BYTES}")
         data = _content
 
-    text, title, n_pages = await asyncio.to_thread(_extract_pdf, data)
+    text, title, n_pages, truncated = await asyncio.to_thread(_extract_pdf, data)
     if not text.strip():
         raise ValueError("no extractable text from PDF (scanned/image-only?)")
 
@@ -45,11 +50,26 @@ async def afetch_pdf(
         source_type="pdf",
         title=title,
         content=text,
-        metadata={"pages": n_pages, "bytes": len(data)},
+        metadata={"pages": n_pages, "bytes": len(data), "pages_truncated": truncated},
     )
 
 
-def _extract_pdf(data: bytes) -> tuple[str, str | None, int]:
+async def _download_capped(client: httpx.AsyncClient, url: str) -> bytes:
+    """Stream the body, refusing anything larger than MAX_PDF_BYTES."""
+    async with client.stream("GET", url) as resp:
+        resp.raise_for_status()
+        declared = resp.headers.get("content-length")
+        if declared and declared.isdigit() and int(declared) > MAX_PDF_BYTES:
+            raise ValueError(f"PDF too large: {declared} bytes > {MAX_PDF_BYTES}")
+        buf = bytearray()
+        async for chunk in resp.aiter_bytes():
+            buf += chunk
+            if len(buf) > MAX_PDF_BYTES:
+                raise ValueError(f"PDF exceeds {MAX_PDF_BYTES} bytes")
+        return bytes(buf)
+
+
+def _extract_pdf(data: bytes) -> tuple[str, str | None, int, bool]:
     """Sync pypdf extraction (intended to run in a thread)."""
     from pypdf import PdfReader
     from pypdf.errors import PdfReadError
@@ -66,8 +86,9 @@ def _extract_pdf(data: bytes) -> tuple[str, str | None, int]:
     except Exception:  # noqa: BLE001 - metadata is best-effort
         pass
 
+    n_pages = len(reader.pages)
     parts: list[str] = []
-    for page in reader.pages:
+    for page in reader.pages[:MAX_PDF_PAGES]:
         try:
             t = page.extract_text() or ""
         except Exception:  # noqa: BLE001 - skip unreadable pages, keep the rest
@@ -75,7 +96,7 @@ def _extract_pdf(data: bytes) -> tuple[str, str | None, int]:
         if t.strip():
             parts.append(t.strip())
 
-    return "\n\n".join(parts).strip(), title, len(reader.pages)
+    return "\n\n".join(parts).strip(), title, n_pages, n_pages > MAX_PDF_PAGES
 
 
 def fetch_pdf(url: str) -> Document:
