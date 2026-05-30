@@ -7,6 +7,7 @@ import re
 
 import httpx
 
+from ._http import build_client
 from .types import Document
 
 _TWEET_RE = re.compile(
@@ -32,7 +33,7 @@ async def afetch_twitter(url: str, *, client: httpx.AsyncClient | None = None) -
 
     own_client = client is None
     if own_client:
-        client = httpx.AsyncClient(timeout=15.0, follow_redirects=True)
+        client = build_client()
     try:
         resp = await client.get(api_url)
         resp.raise_for_status()

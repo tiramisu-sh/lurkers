@@ -7,6 +7,7 @@ import xml.etree.ElementTree as ET
 
 import httpx
 
+from ._http import build_client
 from .types import Document
 
 _ATOM_NS = "{http://www.w3.org/2005/Atom}"
@@ -48,11 +49,7 @@ async def afeed(
 
     own_client = client is None
     if own_client:
-        client = httpx.AsyncClient(
-            timeout=30.0,
-            follow_redirects=True,
-            headers={"User-Agent": "Mozilla/5.0 (compatible; lurkers/0.1)"},
-        )
+        client = build_client()
     try:
         resp = await client.get(feed_url)
         resp.raise_for_status()
